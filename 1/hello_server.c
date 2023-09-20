@@ -33,10 +33,16 @@ int main(int argc,char * argv[])
 
     bind(serv_sock,(struct sockaddr*)&serv_addr,sizeof(serv_addr));
 
+    printf("serv_addr.sin_addr.s_addr:%#lx \n",serv_addr.sin_addr.s_addr);
+
     listen(serv_sock,5);
+
+    printf("serv_addr.sin_addr.s_addr:%#lx \n",serv_addr.sin_addr.s_addr);
 
     clnt_addr_size = sizeof(clnt_addr);
     clnt_sock = accept(serv_sock,(struct sockaddr*)&clnt_addr,&clnt_addr_size);
+
+    printf("serv_addr.sin_addr.s_addr:%#lx \n",serv_addr.sin_addr.s_addr);
 
     write(clnt_sock,message,sizeof(message));
 
