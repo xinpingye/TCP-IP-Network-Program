@@ -22,17 +22,17 @@ int main(int argc,char*argv[])
         scanf("%s",msg);
         printf("msg:%s\n",msg);
         if(msg[0] == 'q' || msg[0] == 'Q')
-        {
-            
+        { 
             close(clnt_sock);
             return 0;
         }
         else
         {
-            
             char message[20]="123";
             write(clnt_sock,msg,strlen(msg));
-            int read_len = read(clnt_sock,message,20);
+            int read_len=0;
+            while(read_len<strlen(msg))
+                read_len += read(clnt_sock,message,20);
             message[read_len]='0';
             printf("message : %s \n",message);
         }
