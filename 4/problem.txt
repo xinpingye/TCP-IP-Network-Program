@@ -1,0 +1,3 @@
+在关于udp的echo的server和client代码中 我发现一个奇怪的现象  
+如果不去掉server中的打印IP和port的函数调用  则运行server和client client会正常收到消息并结束
+反之 则不会  client不会收到返回的消息  并且不会结束
