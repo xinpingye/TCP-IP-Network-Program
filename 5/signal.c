@@ -18,7 +18,11 @@ void alarm_control(int sig)
 
 int main()
 {
-    signal(SIGALRM,alarm_control);
+    struct sigaction sigac;
+    sigac.sa_handler = alarm_control;
+    sigemptyset(&sigac.sa_mask);
+    sigac.sa_flags = 0;
+    sigaction(SIGALRM,&sigac,0);
     signal(SIGINT,key_control);
     alarm(10);
     for(int i = 0;i<3;i++)
