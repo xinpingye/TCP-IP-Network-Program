@@ -15,6 +15,26 @@ int main(int argc , char * argv[])
         while((*ip_list)!=NULL)
         {
             printf("ip : %s \n",inet_ntoa(*((struct in_addr*)(*ip_list))));
+            printf("debug\n");
+            struct hostent * host_info_for_name = gethostbyaddr(*ip_list,4,AF_INET);
+            printf("debug1\n");
+            
+            if(host_info_for_name->h_aliases==NULL)
+            {
+                printf("debug!!!\n");
+            }
+            else
+                printf("debug!!!!!!\n");
+            /*
+            printf("debug2\n");
+            while((*h_aliases)!=NULL)
+            {
+                printf("debug3\n");
+                printf("alias : %s\t",*h_aliases);
+                h_aliases++;
+            }
+            */
+            printf("\n");
             ip_list++;
         }
     }
