@@ -50,13 +50,17 @@ int main(int argc , char * argv[])
             pid_t pid = fork();
             if(pid == 0)
             {
+                close(serv_sock);
                 while((strlen = read(clnt_sock,msg,sizeof(msg)))!=0)
                     write(clnt_sock,msg,strlen);
                 close(clnt_sock);
                 return 0;//child process ends
             }
             else
+            {
                 printf("new child process : %d \n",pid);
+                close(clnt_sock);
+            }
         }
         else
             printf("connect fail\n");
