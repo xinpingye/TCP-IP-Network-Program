@@ -11,8 +11,6 @@
 #include <sys/select.h>
 
 
-
-
 int main(int argc , char * argv[])
 {
     int serv_sock = socket(PF_INET,SOCK_STREAM,0);
