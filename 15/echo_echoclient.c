@@ -32,7 +32,7 @@ int main(int argc,char*argv[])
             write(clnt_sock,msg,strlen(msg));
             int read_len=0;
             while(read_len<strlen(msg))
-                read_len += read(clnt_sock,message,20);
+                read_len += read(clnt_sock,message + read_len,20 - read_len);
             message[read_len]='0';
             printf("message : %s \n",message);
         }

@@ -10,6 +10,14 @@
 #include <fcntl.h>
 //#include <sys/select.h>
 #include <sys/epoll.h>
+#include <errno.h>
+
+void setnoblockingmode(int fd)
+{
+    int flag = fcntl(fd,F_GETFL,0);
+    fcntl(fd,F_SETFL,flag|O_NONBLOCK);
+}
+
 
 int main(int argc , char * argv[])
 {
@@ -28,6 +36,7 @@ int main(int argc , char * argv[])
 
     //FD_ZERO(&reads);
     //FD_SET(serv_sock,&reads);
+    setnoblockingmode(serv_sock);
     int epfd = epoll_create(20);
     struct epoll_event event;
     event.events = EPOLLIN;
@@ -42,6 +51,7 @@ int main(int argc , char * argv[])
         //int fd_nums = select(max_nums_monitor + 1,&tmp,0,0,&timeout);
         struct epoll_event* change_events = malloc(sizeof(struct epoll_event)*20);
         int fd_nums = epoll_wait(epfd,change_events,20,-1);
+        printf("just to verify epoll_wait condition trigger!!!\n");
         if(fd_nums == 0)
         {
             printf("time out !!!\n next loop...\n");
@@ -60,27 +70,36 @@ int main(int argc , char * argv[])
                     //FD_SET(clnt_sock,&reads);
                     //if(max_nums_monitor < clnt_sock)
                         //max_nums_monitor = clnt_sock;
+                    setnoblockingmode(clnt_sock);
                     struct epoll_event new_event;
-                    new_event.events = EPOLLIN;
+                    new_event.events = EPOLLIN | EPOLLET;
                     new_event.data.fd = clnt_sock;
                     epoll_ctl(epfd,EPOLL_CTL_ADD,clnt_sock,&new_event);
                     printf("new connect!!!\n");
                 }
                 else
                 {
-                    char buf[20];
-                    int read_len = read(fd_cur,buf,sizeof(buf));
-                    if(read_len == 0)
+                    while(1)
                     {
-                        printf("disconnect with sock : %d \n",fd_cur);
-                        close(fd_cur);
-                        //FD_CLR(i,&reads);
-                        epoll_ctl(epfd,EPOLL_CTL_DEL,fd_cur,NULL);
-                    }
-                    else
-                    {
-                        write(fd_cur,buf,read_len);
-                        printf("recv message ; %s \n",buf);
+                        char buf[4];
+                        int read_len = read(fd_cur,buf,sizeof(buf));
+                        if(read_len == 0)
+                        {
+                            printf("disconnect with sock : %d \n",fd_cur);
+                            close(fd_cur);
+                            //FD_CLR(i,&reads);
+                            epoll_ctl(epfd,EPOLL_CTL_DEL,fd_cur,NULL);
+                        }
+                        else if(read_len < 0)
+                        {
+                            if(errno == EAGAIN)
+                                break;
+                        }
+                        else
+                        {
+                            write(fd_cur,buf,read_len);
+                            printf("recv message ; %s \n",buf);
+                        }
                     }
                 }
             }
@@ -92,3 +111,4 @@ int main(int argc , char * argv[])
     return 0;
 
 }
+
